@@ -2,7 +2,7 @@
 
 # Download up to date character prefixes
 
-#wget https://raw.githubusercontent.com/crawl/sequell/master/config/crawl-data.yml
+wget https://raw.githubusercontent.com/crawl/sequell/master/config/crawl-data.yml
 
 cat crawl-data.yml |
 	sed '/^species:/,/^species-flavours:/!d' |
@@ -25,3 +25,18 @@ echo "/^\("$(cat species | awk 1 ORS='\\|' | sed 's/..$//')"\)""\("$(cat classes
 
 cat 4words | sed -f rgx > dcss_words
 
+touch dcss_defs
+
+cat dcss_words | while read line
+do
+	curl 'https://api.dictionaryapi.dev/api/v2/entries/en/'$line | jq '.' >> dcss_defs
+
+	sleep 1
+done
+
+cat dcss_defs | jq '.[0] | .word?' | sed 's/"//g'  > dcss_words_dict
+
+echo "Cleaning up"
+
+
+echo "Done!"
